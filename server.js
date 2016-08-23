@@ -14,7 +14,7 @@ function fig(message) {
             console.dir(err);
             return;
         }
-        console.log(data)
+        console.log(data);
     });
 }
 
@@ -54,7 +54,7 @@ var myService = {
             executeJob: function (args) {
                 var actionName = "executeJob";
                 fig(actionName);
-                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
                 return {
                     "executeJobReturn": {
                         "$value": "1234567890"
@@ -64,7 +64,7 @@ var myService = {
             getJobStatus: function (args) {
                 var actionName = "getJobStatus";
                 fig(actionName);
-                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
                 return {
                     "getJobStatusReturn": {
                         "enumJobStatus": {
@@ -79,7 +79,7 @@ var myService = {
             getJobResult: function (args) {
                 var actionName = "getJobResult";
                 fig(actionName);
-                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
                 return {
                     "getJobResultReturn": {
                         "$value": "4711-test.zip"
@@ -89,7 +89,7 @@ var myService = {
             getJobError: function (args) {
                 var actionName = "getJobError";
                 fig(actionName);
-                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
                 return {
                     "getJobErrorReturn": {
                         "$value": "PseudoErrorMessage"
@@ -120,13 +120,6 @@ soap.listen(server, {
     attributesKey: 'attttr',
     valueKey: "$value"
 });
-
-
-
-// WSDL options.
-//        attributesKey: 'theAttrs',
-//        valueKey: 'theVal',
-//        xmlKey: 'theXml'   
 
 server.log = function (type, data) {
     // type is 'received' or 'replied'
