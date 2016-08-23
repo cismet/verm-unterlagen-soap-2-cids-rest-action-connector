@@ -1,0 +1,11 @@
+{
+  "attributes": {
+    "soapenv:encodingStyle": "http://schemas.xmlsoap.org/soap/encoding/"
+  },
+  "in0": {
+    "attributes": {
+      "xsi:type": "xsd:string"
+    },
+    "$value": "?"
+  }
+}
