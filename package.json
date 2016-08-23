@@ -1,0 +1,31 @@
+{
+    "name": "verm-unterlagen-soap-2-cids-rest-action-connectorn",
+    "version": "0.1.0",
+    "keywords": [
+    "vermessungsunterlagen",
+    "soap",
+    "facade",
+    "custom",
+    "wuppertal",
+    "server",
+    "cids-connector"
+  ],
+  "description": "it is like a webserver for your georeferenced rasterdocuments, but it understands the OGC WMS standard (a kind of)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cismet/verm-unterlagen-soap-2-cids-rest-action-connector.git"
+  },
+  "author": "helllth",
+  "contributors": [],
+  "dependencies": {
+    "soap": "https://github.com/helllth/node-soap/tarball/6208da42f61fd88425b76290e74ae26057a2e70a",
+    "clustered-node": "0.0.9",
+    "request": "*",
+    "figlet": "1.1.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
+

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" xmlns:intf="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="http://common.portaladapter.vermunterlagenportal.aedsicad.de" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+ <wsdl:types>
+  <schema targetNamespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://common.portaladapter.vermunterlagenportal.aedsicad.de"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="ArrayOfArrayOf_xsd_double">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:double[][]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOf_tns1_Selectionpolygon">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:Selectionpolygon[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOf_tns1_Antragsflurstueck">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:Antragsflurstueck[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOf_xsd_string">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+   <complexType name="ArrayOf_tns1_Punktnummernreservierung">
+    <complexContent>
+     <restriction base="soapenc:Array">
+      <attribute ref="soapenc:arrayType" wsdl:arrayType="tns1:Punktnummernreservierung[]"/>
+     </restriction>
+    </complexContent>
+   </complexType>
+  </schema>
+  <schema targetNamespace="http://common.portaladapter.vermunterlagenportal.aedsicad.de" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="Selectionpolygon">
+    <sequence>
+     <element name="polygon" nillable="true" type="impl:ArrayOfArrayOf_xsd_double"/>
+    </sequence>
+   </complexType>
+   <complexType name="Antragsflurstueck">
+    <sequence>
+     <element name="flurID" nillable="true" type="xsd:string"/>
+     <element name="flurstuecksID" nillable="true" type="xsd:string"/>
+     <element name="gemarkungsID" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Punktnummernreservierung">
+    <sequence>
+     <element name="anzahlPunktnummern" type="xsd:int"/>
+     <element name="katasteramtsID" nillable="true" type="xsd:string"/>
+     <element name="utmKilometerQuadrat" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="AntragsdatensatzBean">
+    <sequence>
+     <element name="aktenzeichenKatasteramt" nillable="true" type="xsd:string"/>
+     <element name="anfragepolygonArray" nillable="true" type="impl:ArrayOf_tns1_Selectionpolygon"/>
+     <element name="antragsflurstuecksArray" nillable="true" type="impl:ArrayOf_tns1_Antragsflurstueck"/>
+     <element name="artderVermessung" nillable="true" type="impl:ArrayOf_xsd_string"/>
+     <element name="geschaeftsbuchnummer" nillable="true" type="xsd:string"/>
+     <element name="katasteramtAuftragsnummer" nillable="true" type="xsd:string"/>
+     <element name="katasteramtsId" nillable="true" type="xsd:string"/>
+     <element name="mitGrenzniederschriften" type="xsd:boolean"/>
+     <element name="nameVermessungsstelle" nillable="true" type="xsd:string"/>
+     <element name="nurPunktnummernreservierung" type="xsd:boolean"/>
+     <element name="punktnummernreservierungsArray" nillable="true" type="impl:ArrayOf_tns1_Punktnummernreservierung"/>
+     <element name="saumAPSuche" nillable="true" type="xsd:string"/>
+     <element name="zulassungsnummerVermessungsstelle" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <simpleType name="EnumJobStatus">
+    <restriction base="xsd:string">
+     <enumeration value="OK"/>
+     <enumeration value="ERROR"/>
+     <enumeration value="WAITING"/>
+     <enumeration value="WORKING"/>
+    </restriction>
+   </simpleType>
+   <complexType name="JobStatusBean">
+    <sequence>
+     <element name="enumJobStatus" nillable="true" type="tns1:EnumJobStatus"/>
+     <element name="geschaeftsbuchnummer" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="getJobResultResponse">
+
+      <wsdl:part name="getJobResultReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="executeJobRequest">
+
+      <wsdl:part name="in0" type="tns1:AntragsdatensatzBean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getJobErrorResponse">
+
+      <wsdl:part name="getJobErrorReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="executeJobResponse">
+
+      <wsdl:part name="executeJobReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getJobStatusResponse">
+
+      <wsdl:part name="getJobStatusReturn" type="tns1:JobStatusBean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getJobResultRequest">
+
+      <wsdl:part name="in0" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getJobErrorRequest">
+
+      <wsdl:part name="in0" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getJobStatusRequest">
+
+      <wsdl:part name="in0" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="PortaladapterWebservice">
+
+      <wsdl:operation name="executeJob" parameterOrder="in0">
+
+         <wsdl:input message="impl:executeJobRequest" name="executeJobRequest"/>
+
+         <wsdl:output message="impl:executeJobResponse" name="executeJobResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobStatus" parameterOrder="in0">
+
+         <wsdl:input message="impl:getJobStatusRequest" name="getJobStatusRequest"/>
+
+         <wsdl:output message="impl:getJobStatusResponse" name="getJobStatusResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobResult" parameterOrder="in0">
+
+         <wsdl:input message="impl:getJobResultRequest" name="getJobResultRequest"/>
+
+         <wsdl:output message="impl:getJobResultResponse" name="getJobResultResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobError" parameterOrder="in0">
+
+         <wsdl:input message="impl:getJobErrorRequest" name="getJobErrorRequest"/>
+
+         <wsdl:output message="impl:getJobErrorResponse" name="getJobErrorResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="PortaladapterWebserviceSoapBinding" type="impl:PortaladapterWebservice">
+
+      <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="executeJob">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="executeJobRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="executeJobResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobStatus">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getJobStatusRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getJobStatusResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobResult">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getJobResultRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getJobResultResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getJobError">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getJobErrorRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getJobErrorResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://webservice.portaladapter.vermunterlagenportal.aedsicad.de" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="PortaladapterWebserviceService">
+
+      <wsdl:port binding="impl:PortaladapterWebserviceSoapBinding" name="PortaladapterWebservice">
+
+         <wsdlsoap:address location="{{soap-facade-url}}"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
