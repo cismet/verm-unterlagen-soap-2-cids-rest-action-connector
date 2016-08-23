@@ -57,9 +57,6 @@ var myService = {
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "executeJobReturn": {
-                        "attributes": {
-                            "xsi:type": "xsd:string"
-                        },
                         "$value": "1234567890"
                     }
                 };
@@ -70,20 +67,10 @@ var myService = {
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobStatusReturn": {
-                        "attributes": {
-                            "xsi:type": "com:JobStatusBean",
-                            "xmlns:com": "http://common.portaladapter.vermunterlagenportal.aedsicad.de"
-                        },
                         "enumJobStatus": {
-                            "attributes": {
-                                "xsi:type": "com:EnumJobStatus",
-                            },
                             "$value": "OK"
                         },
                         "geschaeftsbuchnummer": {
-                            "attributes": {
-                                "xsi:type": "xsd:string",
-                            },
                             "$value": "4711-test-geschaeftsbuchnummer"
                         }
                     }
@@ -95,9 +82,6 @@ var myService = {
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobResultReturn": {
-                        "attributes": {
-                            "xsi:type": "xsd:string"
-                        },
                         "$value": "4711-test.zip"
                     }
                 };
@@ -108,11 +92,7 @@ var myService = {
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobErrorReturn": {
-                        "$value": "PseudoErrorMessage",
-                        "attributes": {
-                            "xsi:type": "xsd:string"
-
-                        },
+                        "$value": "PseudoErrorMessage"
                     }
                 };
 
