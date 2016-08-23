@@ -42,13 +42,19 @@ var soapHeader = {
     "Password": "bar"
 };
 
+function logFile(action, ending, content) {
+    var fname = conf.tmpFolder + "/" + action + "." + new Date().toISOString() + "." + Math.floor(Math.random() * 10000) +"."+ ending;
+    fs.writeFile(fname, content);
+    console.log("wrote " + fname);
+}
+
 var myService = {
     PortaladapterWebserviceService: {
         PortaladapterWebservice: {
             executeJob: function (args) {
-                fig('executeJob');
-                //console.log(util.inspect(args, false, null,true));
-                console.log(JSON.stringify(args, undefined, 2));
+                var actionName = "executeJob";
+                fig(actionName);
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "executeJobReturn": {
                         "attributes": {
@@ -59,8 +65,9 @@ var myService = {
                 };
             },
             getJobStatus: function (args) {
-                fig('getJobStatus');
-                console.log(JSON.stringify(args, undefined, 2));
+                var actionName = "getJobStatus";
+                fig(actionName);
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobStatusReturn": {
                         "attributes": {
@@ -83,8 +90,9 @@ var myService = {
                 };
             },
             getJobResult: function (args) {
-                fig('getJobResult');
-                console.log(JSON.stringify(args, undefined, 2));
+                var actionName = "getJobResult";
+                fig(actionName);
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobResultReturn": {
                         "attributes": {
@@ -95,8 +103,9 @@ var myService = {
                 };
             },
             getJobError: function (args) {
-                fig('getJobError');
-                console.log(JSON.stringify(args, undefined, 2));
+                var actionName = "getJobError";
+                fig(actionName);
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2))
                 return {
                     "getJobErrorReturn": {
                         "$value": "PseudoErrorMessage",
@@ -112,7 +121,7 @@ var myService = {
         }
     }
 };
-var serviceUrl = conf.prot + "//" + conf.host + ":" + conf.port + conf.route;
+var serviceUrl = conf.prot + "://" + conf.host + ":" + conf.port + conf.route;
 var rawxml = fs.readFileSync('service.wsdl', 'utf8');
 var wsdlDefinition = rawxml.replace(/{{soap-facade-url}}/g, serviceUrl);
 
@@ -149,7 +158,7 @@ server.log = function (type, data) {
 //server.listen(8080);
 
 // or as a clustered node
-clustered_node.listen({port: conf.port, host: conf.host, workers: conf.workers}, server);
+clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
 
 
-console.log('SOAP Server started');
+console.log('SOAP Server started on ' + serviceUrl);
