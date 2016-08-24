@@ -1,4 +1,4 @@
-var extConf = require('./config.json');
+var extConf = require('./config/config.json');
 var fs = require('fs');
 var soap = require('soap');
 var http = require('http');
