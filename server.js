@@ -226,10 +226,10 @@ soapServer.log = function (type, data) {
 
 
 //either as single node
-server.listen(8080);
+//server.listen(8080);
 
 // or as a clustered node
-//clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
+clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
 
 
 console.log('SOAP Server started on ' + serviceUrl);
