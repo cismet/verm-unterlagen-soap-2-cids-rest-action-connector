@@ -291,7 +291,7 @@ soapServer.log = function (type, data) {
 };
 
 
-if (!clustered) {
+if (!conf.clustered) {
     //either as single node
     server.listen(8080);
 } else {
