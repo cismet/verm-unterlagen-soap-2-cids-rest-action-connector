@@ -23,8 +23,34 @@ var defaults = {
     "port": 8080,
     "host": "localhost",
     "workers": 10,
-    "tmpFolder": "./tmp/",
-    "route": "/VermUnterlagenPortalOfflineAdapter/services/PortaladapterWebservice"
+    "tmpFolder": "/tmp/verm-unterlagen-soap-2-cids-rest-action-connector",
+    "route": "/VermUnterlagenPortalOfflineAdapter/services/PortaladapterWebservice",
+    "cidsRestServerUrl": "http://localhost:8890/actions/",
+    "cidsRestServerDomain": "WUNDA_BLAU",
+    "cidsRestServerUser": "admin",
+    "cidsRestServerUserPW": "leo",
+    "cidsRestActionDefaultUrlParameter": "/tasks?role=all&resultingInstanceType=result",
+    "getJobStatusTaskTemplate": {
+        "key": "VUPgetJobStatusAction",
+        "actionKey": "VUPgetJobStatusAction",
+        "description": "legacy ServerAction",
+        "parameters": null,
+        "status": null
+    },
+    "getJobErrorTaskTemplate": {
+        "key": "VUPgetJobErrorAction",
+        "actionKey": "VUPgetJobErrorAction",
+        "description": "legacy ServerAction",
+        "parameters": null,
+        "status": null
+    },
+    "getJobResultTaskTemplate": {
+        "key": "VUPgetJobResultAction",
+        "actionKey": "VUPgetJobResultAction",
+        "description": "legacy ServerAction",
+        "parameters": null,
+        "status": null
+    }
 };
 
 var conf = {
@@ -33,68 +59,139 @@ var conf = {
     "host": extConf.host || defaults.host,
     "workers": extConf.workers || defaults.workers,
     "tmpFolder": extConf.tmpFolder || defaults.tmpFolder,
-    "route": extConf.route || defaults.route
+    "route": extConf.route || defaults.route,
+    "cidsRestServerUrl": extConf.cidsRestServerUrl || defaults.cidsRestServerUrl,
+    "cidsRestServerDomain": extConf.cidsRestServerDomain || defaults.cidsRestServerDomain,
+    "cidsRestServerUser": extConf.cidsRestServerUser || defaults.cidsRestServerUser,
+    "cidsRestServerUserPW": extConf.cidsRestServerUserPW || defaults.cidsRestServerUserPW,
+    "cidsRestActionDefaultUrlParameter": extConf.cidsRestActionDefaultUrlParameter || defaults.cidsRestActionDefaultUrlParameter,
+    "getJobStatusTaskTemplate": extConf.getJobStatusTaskTemplate || defaults.getJobStatusTaskTemplate,
+    "getJobErrorTaskTemplate": extConf.getJobErrorTaskTemplate || defaults.getJobErrorTaskTemplate,
+    "getJobResultTaskTemplate": extConf.getJobResultTaskTemplate || defaults.getJobResultTaskTemplate
 };
 
+if (!fs.existsSync(conf.tmpFolder)) {
+    fs.mkdirSync(conf.tmpFolder);
+}
 
-var soapHeader = {
-    "Username": "foo",
-    "Password": "bar"
-};
+//because of the logs
+if (!fs.existsSync(conf.tmpFolder+"/xml")) {
+    fs.mkdirSync(conf.tmpFolder+"/xml");
+}
 
 function logFile(action, ending, content) {
-    var fname = conf.tmpFolder + "/" + action + "." + new Date().toISOString() + "." + Math.floor(Math.random() * 10000) +"."+ ending;
+    var fname = conf.tmpFolder + "/" + action + "." + new Date().toISOString() + "." + Math.floor(Math.random() * 10000) + "." + ending;
     fs.writeFile(fname, content);
     console.log("wrote " + fname);
 }
 
+function callSimpleActionAndRespond(taskParameters, soapCallback) {
+    var formData = {
+        taskparams: {
+            value: JSON.stringify(taskParameters),
+            options: {
+                contentType: 'application/json'
+            }
+        }
+    };
+    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
+}
+
+function callSimpleActionAndRespond(taskParameters, soapCallback) {
+    var formData = {
+        taskparams: {
+            value: JSON.stringify(taskParameters),
+            options: {
+                contentType: 'application/json'
+            }
+        }
+    };
+    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
+}
+
+
+function callActionAndRespond(formData, actionKey, soapCallback) {
+    request.post({url: conf.cidsRestServerUrl + conf.cidsRestServerDomain + "." + actionKey + conf.cidsRestActionDefaultUrlParameter, formData: formData}, function optionalCallback(err, httpResponse, body) {
+        if (err) {
+            return console.error('upload failed:', err);
+        }
+        var jsonBody = JSON.parse(body);
+        var responseJson = JSON.parse(jsonBody.res);
+        soapCallback(responseJson);
+
+    }).auth(conf.cidsRestServerUser + '@' + conf.cidsRestServerDomain, conf.cidsRestServerUserPW, true);
+}
+
+
 var myService = {
     PortaladapterWebserviceService: {
         PortaladapterWebservice: {
-            executeJob: function (args) {
+            executeJob: function (args, soapCallback) {
                 var actionName = "executeJob";
+
+                //Debug output and logging of the request
                 fig(actionName);
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2));
-                return {
-                    "executeJobReturn": {
-                        "$value": "1234567890"
-                    }
-                };
-            },
-            getJobStatus: function (args) {
-                var actionName = "getJobStatus";
-                fig(actionName);
-                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
-                return {
-                    "getJobStatusReturn": {
-                        "enumJobStatus": {
-                            "$value": "OK"
-                        },
-                        "geschaeftsbuchnummer": {
-                            "$value": "4711-test-geschaeftsbuchnummer"
+
+                //Attach the whole json to the body
+                var formData = {
+                    file: {
+                        value: JSON.stringify(args),
+                        options: {
+                            contentType: 'application/json'
                         }
                     }
                 };
+
+                // Call the cids Action
+                callActionAndRespond(formData, "VUPexecuteJobAction", soapCallback);
+
             },
-            getJobResult: function (args) {
+            getJobStatus: function (args, soapCallback) {
+                var actionName = "getJobStatus";
+                var jobNumber = args.in0.$value;
+
+                //Clone the template to a new var
+                var taskParameters = JSON.parse(JSON.stringify(conf.getJobStatusTaskTemplate));
+                taskParameters.parameters = {"jobNumber": jobNumber};
+
+                //Debug output and logging of the request
+                fig(actionName + ": " + jobNumber);
+                logFile(actionName, "json", JSON.stringify(args, undefined, 2));
+
+                // Call the cids Action
+                callSimpleActionAndRespond(taskParameters, soapCallback);
+            },
+            getJobResult: function (args, soapCallback) {
                 var actionName = "getJobResult";
-                fig(actionName);
+                var jobNumber = args.in0.$value;
+
+                //Clone the template to a new var
+                var taskParameters = JSON.parse(JSON.stringify(conf.getJobResultTaskTemplate));
+                taskParameters.parameters = {"jobNumber": jobNumber};
+
+                //Debug output and logging of the request
+                fig(actionName + ": " + jobNumber);
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2));
-                return {
-                    "getJobResultReturn": {
-                        "$value": "4711-test.zip"
-                    }
-                };
+
+                // Call the cids Action
+                callSimpleActionAndRespond(taskParameters, soapCallback);
+
             },
-            getJobError: function (args) {
+            getJobError: function (args, soapCallback) {
                 var actionName = "getJobError";
-                fig(actionName);
+                var jobNumber = args.in0.$value;
+
+                //Clone the template to a new var
+                var taskParameters = JSON.parse(JSON.stringify(conf.getJobErrorTaskTemplate));
+                taskParameters.parameters = {"jobNumber": jobNumber};
+
+                //Debug output and logging of the request
+                fig(actionName + ": " + jobNumber);
                 logFile(actionName, "json", JSON.stringify(args, undefined, 2));
-                return {
-                    "getJobErrorReturn": {
-                        "$value": "PseudoErrorMessage"
-                    }
-                };
+
+                // Call the cids Action
+                callSimpleActionAndRespond(taskParameters, soapCallback);
 
             }
 
@@ -105,33 +202,34 @@ var serviceUrl = conf.prot + "://" + conf.host + ":" + conf.port + conf.route;
 var rawxml = fs.readFileSync('service.wsdl', 'utf8');
 var wsdlDefinition = rawxml.replace(/{{soap-facade-url}}/g, serviceUrl);
 
-
-//http server example  
 var server = http.createServer(function (request, response) {
     response.end("404: Not Found: " + request.url);
 });
 
 
-soap.listen(server, {
+var soapServer = soap.listen(server, {
     path: conf.route,
     services: myService,
-    xml: wsdlDefinition,
+    xml: wsdlDefinition
     // WSDL options.
-    attributesKey: 'attttr',
-    valueKey: "$value"
+    //attributesKey: 'attributes',
+    //valueKey: "$value"
 });
 
-server.log = function (type, data) {
+
+soapServer.log = function (type, data) {
     // type is 'received' or 'replied'
-    console.log('Log' + type);
+    if (type !== "info") {
+        logFile("xml/" + type, "xml", data);
+    }
 };
 
 
 //either as single node
-//server.listen(8080);
+server.listen(8080);
 
 // or as a clustered node
-clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
+//clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
 
 
 console.log('SOAP Server started on ' + serviceUrl);
