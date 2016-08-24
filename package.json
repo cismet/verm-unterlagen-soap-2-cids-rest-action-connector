@@ -21,7 +21,7 @@
   "dependencies": {
     "soap": "https://github.com/helllth/node-soap/tarball/6208da42f61fd88425b76290e74ae26057a2e70a",
     "clustered-node": "0.0.9",
-    "request": "*",
+    "request": "2.74.0",
     "figlet": "1.1.2"
   },
   "scripts": {
