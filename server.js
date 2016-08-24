@@ -1,3 +1,10 @@
+
+/* global use */
+/*jslint node:true */
+
+'use strict';
+
+
 var extConf = require('./config/config.json');
 var fs = require('fs');
 var soap = require('soap');
@@ -19,10 +26,11 @@ function fig(message) {
 }
 
 var defaults = {
+    "clustered": true,
+    "workers": 10,
     "prot": "http",
     "port": 8080,
     "host": "localhost",
-    "workers": 10,
     "tmpFolder": "/tmp/verm-unterlagen-soap-2-cids-rest-action-connector",
     "route": "/VermUnterlagenPortalOfflineAdapter/services/PortaladapterWebservice",
     "cidsRestServerUrl": "http://localhost:8890/actions/",
@@ -30,6 +38,13 @@ var defaults = {
     "cidsRestServerUser": "admin",
     "cidsRestServerUserPW": "leo",
     "cidsRestActionDefaultUrlParameter": "/tasks?role=all&resultingInstanceType=result",
+    "cidsRestServerTLS": false,
+    "cidsRestServerTLSClientAuth": false,
+    "cidsRestServerClientCert": "./certs/client.crt",
+    "cidsRestServerClientCertKey": "./certs/client.key",
+    "cidsRestServerClientCertPassphrase": "***",
+    "cidsRestServerCert": "./certs/server.cert.pem",
+    "cidsRestServerRejectIfUnauthorizedCert": false,
     "getJobStatusTaskTemplate": {
         "key": "VUPgetJobStatusAction",
         "actionKey": "VUPgetJobStatusAction",
@@ -54,7 +69,7 @@ var defaults = {
 };
 
 var conf = {
-    "prot": extConf.prot || defaults.prot,
+    "clustered": extConf.clustered || defaults.clustered,
     "port": extConf.port || defaults.port,
     "host": extConf.host || defaults.host,
     "workers": extConf.workers || defaults.workers,
@@ -65,18 +80,36 @@ var conf = {
     "cidsRestServerUser": extConf.cidsRestServerUser || defaults.cidsRestServerUser,
     "cidsRestServerUserPW": extConf.cidsRestServerUserPW || defaults.cidsRestServerUserPW,
     "cidsRestActionDefaultUrlParameter": extConf.cidsRestActionDefaultUrlParameter || defaults.cidsRestActionDefaultUrlParameter,
+    "cidsRestServerTLS": extConf.cidsRestServerTLS || defaults.cidsRestServerTLS,
+    "cidsRestServerTLSClientAuth": extConf.cidsRestServerTLSClientAuth || defaults.cidsRestServerTLSClientAuth,
+    "cidsRestServerClientCert": extConf.cidsRestServerClientCert || defaults.cidsRestServerClientCert,
+    "cidsRestServerClientCertKey": extConf.cidsRestServerClientCertKey || defaults.cidsRestServerClientCertKey,
+    "cidsRestServerClientCertPassphrase": extConf.cidsRestServerClientCertPassphrase || defaults.cidsRestServerClientCertPassphrase,
+    "cidsRestServerCert": extConf.cidsRestServerCert || defaults.cidsRestServerCert,
+    "cidsRestServerRejectIfUnauthorizedCert": extConf.cidsRestServerRejectIfUnauthorizedCert || defaults.cidsRestServerRejectIfUnauthorizedCert,
     "getJobStatusTaskTemplate": extConf.getJobStatusTaskTemplate || defaults.getJobStatusTaskTemplate,
     "getJobErrorTaskTemplate": extConf.getJobErrorTaskTemplate || defaults.getJobErrorTaskTemplate,
     "getJobResultTaskTemplate": extConf.getJobResultTaskTemplate || defaults.getJobResultTaskTemplate
 };
+
+
+
+if (conf.cidsRestServerTLSClientAuth) {
+    var certFile = fs.readFileSync(conf.cidsRestServerClientCert);
+    var keyFile = fs.readFileSync(conf.cidsRestServerClientCertKey);
+    var caFile = fs.readFileSync(conf.cidsRestServerCert);
+
+} else if (conf.cidsRestServerTLS && !conf.cidsRestServerTLSClientAuth) {
+    var caFile = fs.readFileSync(conf.cidsRestServerCert);
+}
 
 if (!fs.existsSync(conf.tmpFolder)) {
     fs.mkdirSync(conf.tmpFolder);
 }
 
 //because of the logs
-if (!fs.existsSync(conf.tmpFolder+"/xml")) {
-    fs.mkdirSync(conf.tmpFolder+"/xml");
+if (!fs.existsSync(conf.tmpFolder + "/xml")) {
+    fs.mkdirSync(conf.tmpFolder + "/xml");
 }
 
 function logFile(action, ending, content) {
@@ -85,33 +118,42 @@ function logFile(action, ending, content) {
     console.log("wrote " + fname);
 }
 
-function callSimpleActionAndRespond(taskParameters, soapCallback) {
-    var formData = {
-        taskparams: {
-            value: JSON.stringify(taskParameters),
-            options: {
-                contentType: 'application/json'
-            }
-        }
-    };
-    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
-}
-
-function callSimpleActionAndRespond(taskParameters, soapCallback) {
-    var formData = {
-        taskparams: {
-            value: JSON.stringify(taskParameters),
-            options: {
-                contentType: 'application/json'
-            }
-        }
-    };
-    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
-}
-
 
 function callActionAndRespond(formData, actionKey, soapCallback) {
-    request.post({url: conf.cidsRestServerUrl + conf.cidsRestServerDomain + "." + actionKey + conf.cidsRestActionDefaultUrlParameter, formData: formData}, function optionalCallback(err, httpResponse, body) {
+    var url = conf.cidsRestServerUrl + conf.cidsRestServerDomain + "." + actionKey + conf.cidsRestActionDefaultUrlParameter;
+    if (conf.cidsRestServerTLSClientAuth) {
+        var options = {
+            url: url,
+            formData: formData,
+            agentOptions: {
+                cert: certFile,
+                key: keyFile,
+                ca: caFile,
+                passphrase: 'certpassvup1337',
+                securityOptions: 'SSL_OP_NO_SSLv3',
+                rejectUnauthorized: conf.cidsRestServerRejectIfUnauthorizedCert
+            }
+        };
+    } else if (conf.cidsRestServerTLS && !conf.cidsRestServerTLSClientAuth) {
+        var options = {
+            url: url,
+            formData: formData,
+            agentOptions: {
+                ca: fs.readFileSync(caFile),
+                securityOptions: 'SSL_OP_NO_SSLv3',
+                rejectUnauthorized: conf.cidsRestServerRejectIfUnauthorizedCert
+            }
+        };
+    } else {
+        var options = {
+            url: url,
+            formData: formData
+        };
+    }
+
+
+
+    request.post(options, function optionalCallback(err, httpResponse, body) {
         if (err) {
             return console.error('upload failed:', err);
         }
@@ -120,6 +162,30 @@ function callActionAndRespond(formData, actionKey, soapCallback) {
         soapCallback(responseJson);
 
     }).auth(conf.cidsRestServerUser + '@' + conf.cidsRestServerDomain, conf.cidsRestServerUserPW, true);
+}
+
+function callSimpleActionAndRespond(taskParameters, soapCallback) {
+    var formData = {
+        taskparams: {
+            value: JSON.stringify(taskParameters),
+            options: {
+                contentType: 'application/json'
+            }
+        }
+    };
+    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
+}
+
+function callSimpleActionAndRespond(taskParameters, soapCallback) {
+    var formData = {
+        taskparams: {
+            value: JSON.stringify(taskParameters),
+            options: {
+                contentType: 'application/json'
+            }
+        }
+    };
+    callActionAndRespond(formData, taskParameters.actionKey, soapCallback);
 }
 
 
@@ -211,9 +277,9 @@ var soapServer = soap.listen(server, {
     path: conf.route,
     services: myService,
     xml: wsdlDefinition
-    // WSDL options.
-    //attributesKey: 'attributes',
-    //valueKey: "$value"
+            // WSDL options.
+            //attributesKey: 'attributes',
+            //valueKey: "$value"
 });
 
 
@@ -225,11 +291,12 @@ soapServer.log = function (type, data) {
 };
 
 
-//either as single node
-//server.listen(8080);
-
-// or as a clustered node
-clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
-
+if (!clustered) {
+    //either as single node
+    server.listen(8080);
+} else {
+    // or as a clustered node
+    clustered_node.listen({port: conf.port, host: "0.0.0.0", workers: conf.workers}, server);
+}
 
 console.log('SOAP Server started on ' + serviceUrl);
