@@ -265,7 +265,7 @@ var myService = {
     }
 };
 var serviceUrl = conf.prot + "://" + conf.host + ":" + conf.port + conf.route;
-var rawxml = fs.readFileSync('service.wsdl', 'utf8');
+var rawxml = fs.readFileSync('wsdl/service.wsdl', 'utf8');
 var wsdlDefinition = rawxml.replace(/{{soap-facade-url}}/g, serviceUrl);
 
 var server = http.createServer(function (request, response) {
