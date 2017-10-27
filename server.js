@@ -70,6 +70,7 @@ var defaults = {
 
 var conf = {
     "clustered": extConf.clustered || defaults.clustered,
+    "prot": extConf.prot || defaults.prot,
     "port": extConf.port || defaults.port,
     "host": extConf.host || defaults.host,
     "workers": extConf.workers || defaults.workers,
