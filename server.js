@@ -115,7 +115,11 @@ if (!fs.existsSync(conf.tmpFolder + "/xml")) {
 
 function logFile(action, ending, content) {
     var fname = conf.tmpFolder + "/" + action + "." + new Date().toISOString() + "." + Math.floor(Math.random() * 10000) + "." + ending;
-    fs.writeFile(fname, content, (error) => { console.log("error when writing " + fname + " " + error) });
+    fs.writeFile(fname, content, (error) => { 
+        if (error) {
+            console.log("error when writing " + fname + " " + error);
+        }
+    });
     console.log("wrote " + fname);
 }
 
