@@ -174,7 +174,7 @@ function callActionAndRespond(formData, actionKey, soapCallback) {
             console.log("<body>")
             console.log(body)
             console.log("</body>")
-            
+            return console.error('upload failed:', error);
         }
 
     }).auth(conf.cidsRestServerUser + '@' + conf.cidsRestServerDomain, conf.cidsRestServerUserPW, true);
