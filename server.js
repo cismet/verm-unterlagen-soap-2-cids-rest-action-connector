@@ -162,9 +162,20 @@ function callActionAndRespond(formData, actionKey, soapCallback) {
         if (err) {
             return console.error('upload failed:', err);
         }
-        var jsonBody = JSON.parse(body);
-        var responseJson = JSON.parse(jsonBody.res);
-        soapCallback(responseJson);
+        try {
+            var jsonBody = JSON.parse(body);
+            var responseJson = JSON.parse(jsonBody.res);
+            soapCallback(responseJson);
+        } catch (error) {
+            console.log("error when getting response");
+            console.log("<response>")
+            console.log(httpResponse)
+            console.log("</response>")
+            console.log("<body>")
+            console.log(body)
+            console.log("</body>")
+            
+        }
 
     }).auth(conf.cidsRestServerUser + '@' + conf.cidsRestServerDomain, conf.cidsRestServerUserPW, true);
 }
