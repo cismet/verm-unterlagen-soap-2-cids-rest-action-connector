@@ -206,8 +206,8 @@ function callSimpleActionAndRespond(taskParameters, soapCallback) {
 
 
 var myService = {
-    PortaladapterWebserviceService: {
-        PortaladapterWebservice: {
+    PortaladapterWebservice: {
+        PortaladapterWebservicePort: {
             executeJob: function (args, soapCallback) {
                 var actionName = "executeJob";
 
@@ -285,9 +285,8 @@ var rawxml = fs.readFileSync('wsdl/service.wsdl', 'utf8');
 var wsdlDefinition = rawxml.replace(/{{soap-facade-url}}/g, serviceUrl);
 
 var server = http.createServer(function (request, response) {
-    response.end("404: Not Found: " + request.url);
+    response.end(wsdlDefinition);
 });
-
 
 var soapServer = soap.listen(server, {
     path: conf.route,
