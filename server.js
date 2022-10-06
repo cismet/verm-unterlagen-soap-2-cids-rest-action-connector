@@ -31,6 +31,7 @@ var defaults = {
     "prot": "http",
     "port": 8080,
     "host": "localhost",
+    "portalVersion": "2.1.0",
     "tmpFolder": "/tmp/verm-unterlagen-soap-2-cids-rest-action-connector",
     "route": "/VermUnterlagenPortalOfflineAdapter/services/PortaladapterWebservice",
     "cidsRestServerUrl": "http://localhost:8890/actions/",
@@ -73,6 +74,7 @@ var conf = {
     "prot": extConf.prot || defaults.prot,
     "port": extConf.port || defaults.port,
     "host": extConf.host || defaults.host,
+    "portalVersion": extConf.portalVersion || defaults.portalVersion,
     "workers": extConf.workers || defaults.workers,
     "tmpFolder": extConf.tmpFolder || defaults.tmpFolder,
     "route": extConf.route || defaults.route,
@@ -210,6 +212,8 @@ var myService = {
         PortaladapterWebservicePort: {
             executeJob: function (args, soapCallback) {
                 var actionName = "executeJob";
+
+                args.portalVersion = conf.portalVersion;
 
                 //Debug output and logging of the request
                 fig(actionName);
